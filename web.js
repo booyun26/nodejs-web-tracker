@@ -10,12 +10,12 @@ app.set('views', __dirname + '/views');
 
 app.use(express.static('public'));
 
-app.get('/', function (req, res) {
+app.get('/map', function (req, res) {
   //var fullpath = path.join(__dirname + '/public/gmap.html');
   //console.log(fullpath);
   //res.sendFile(fullpath);
   console.log(req.query);
-  res.render('map', {title : 'CHT Tracker'});
+  res.render('map', {title : 'CHT Tracker', SENSOR_ID: 'Tracker_' + req.query.id});
 });
 
 app.get('/test', function (req, res) {
@@ -53,8 +53,8 @@ app.get('/index', function (req, res) {
   });
 });
 
-app.listen(80, function () {
-  console.log('Example app listening on port 80!');
+app.listen(3000, function () {
+  console.log('Example app listening on port 3000!');
 });
 
 function querySensorRawData(res) {

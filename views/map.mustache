@@ -57,6 +57,7 @@ window.onerror = fnOnError;
 	
 	var mySocket;
 	var lastPosTime = null;
+    var sensor_id = "{{SENSOR_ID}}";
 
 	function initialize() {
 		//var carLatLng = new google.maps.LatLng({{center_pos}});
@@ -96,6 +97,12 @@ window.onerror = fnOnError;
 		});
 
         google.maps.event.addListener(aitmarker, 'click', function() {
+            if(cur_marker.getMap())
+		    {
+		        cur_marker.setAnimation(null);
+		        cur_marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+		    }
+
             coordInfoWindow.setContent(createInfoWindowContent(aitmarker));
             coordInfoWindow.open(aitmarker.get('map'), aitmarker);
         });
@@ -138,7 +145,7 @@ window.onerror = fnOnError;
         
         mySocket.onopen = function(ev) {
             //mySocket.send('{"ck":"{{DEV_CK}}","resources":["/v1/device/{{DEV_ID}}/sensor/{{SENSOR_ID}}/rawdata"]}');
-            mySocket.send('{"ck":"DKKY3FPE9ZKM9ZSE7R","resources":["/v1/device/11798538376/sensor/Tracker_867726030099859/rawdata"]}');
+            mySocket.send('{"ck":"DKKY3FPE9ZKM9ZSE7R","resources":["/v1/device/11798538376/sensor/' + sensor_id + '/rawdata"]}');
         }
         mySocket.onmessage = function(ev) {
             let data = JSON.parse(ev.data);
