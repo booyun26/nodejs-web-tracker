@@ -56,10 +56,11 @@ window.onerror = fnOnError;
 	var apiKey = 'AIzaSyBeDlqxo-bqr5QXW8fe5X1FOFWDjynVsMA';
 	
 	var mySocket;
-	var lastPos = null;
+	var lastPosTime = null;
 
 	function initialize() {
-		var carLatLng = new google.maps.LatLng({{center_pos}});
+		//var carLatLng = new google.maps.LatLng({{center_pos}});
+        var carLatLng = new google.maps.LatLng(24.791203,120.994445); //Holux
         //var carLatLng = new google.maps.LatLng(35.6799,139.7708); //TOKYO 
 
 //        if(window.navigator.geolocation) {

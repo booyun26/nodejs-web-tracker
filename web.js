@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 var mustacheExpress = require('mustache-express');
+var path = require('path');
 
 app.engine('mustache', mustacheExpress());
 
@@ -8,6 +9,14 @@ app.set('view engine', 'mustache');
 app.set('views', __dirname + '/views');
 
 app.use(express.static('public'));
+
+app.get('/', function (req, res) {
+  //var fullpath = path.join(__dirname + '/public/gmap.html');
+  //console.log(fullpath);
+  //res.sendFile(fullpath);
+  console.log(req.query);
+  res.render('map', {title : 'CHT Tracker'});
+});
 
 app.get('/test', function (req, res) {
   res.render('test');
@@ -44,8 +53,8 @@ app.get('/index', function (req, res) {
   });
 });
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+app.listen(80, function () {
+  console.log('Example app listening on port 80!');
 });
 
 function querySensorRawData(res) {
