@@ -82,8 +82,8 @@ window.onerror = fnOnError;
 		
 		map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 
-		//var image = 'http://maps.google.com/mapfiles/kml/shapes/horsebackriding.png';
-		var image ='gmap_ufo.png'
+		var image = 'http://maps.google.com/mapfiles/kml/pal2/icon47.png';
+		//var image ='gmap_ufo.png'
         //var image ='file:///D:/Projects/ezTour/itm/IMAG1525.jpg'
 		//---------------------------------------------------------
 
@@ -91,8 +91,14 @@ window.onerror = fnOnError;
 			position: carLatLng,
 			map: map,
 			icon: image,
-			title:""
+			title:"Holux HQ",
+            zIndex: google.maps.Marker.MAX_ZINDEX + 1
 		});
+
+        google.maps.event.addListener(aitmarker, 'click', function() {
+            coordInfoWindow.setContent(createInfoWindowContent(aitmarker));
+            coordInfoWindow.open(aitmarker.get('map'), aitmarker);
+        });
 
         //---------------------------------------------------------
 		var polyOptions = {
@@ -140,7 +146,7 @@ window.onerror = fnOnError;
             if(lastPosTime == null || lastPosTime != data.time) {
                 lastPosTime = data.time;
                 path_plot_poi(data.lat, data.lon, data.time);
-                movpos(data.lat, data.lon);
+                movpos(data.lat, data.lon, data.time);
             }
         }
     }
@@ -261,12 +267,12 @@ window.onerror = fnOnError;
             arrayMarkers.pop().setMap(null); 
     }
 
-	function movpos(x,y,h){
+	function movpos(x,y,timestamp){
 	  var pos = new google.maps.LatLng(x, y);
 	  map.setCenter(pos);
 	  aitmarker.setPosition(pos);
 	  //pathDrived.push(pos);	  
-      //aitmarker.setTitle("x");
+      aitmarker.setTitle(timestamp);
 	}
 
 	function set_center(x,y){
