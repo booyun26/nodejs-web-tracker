@@ -18,6 +18,14 @@ app.get('/map', function (req, res) {
   res.render('map', {title : 'CHT Tracker', SENSOR_ID: 'Tracker_' + req.query.id});
 });
 
+app.get('/map/history', function (req, res) {
+  //var fullpath = path.join(__dirname + '/public/gmap.html');
+  //console.log(fullpath);
+  //res.sendFile(fullpath);
+  console.log(req.query);
+  res.render('history', {title : 'CHT Tracker History', SENSOR_ID: 'Tracker_' + req.query.id});
+});
+
 app.get('/test', function (req, res) {
   res.render('test');
 });
