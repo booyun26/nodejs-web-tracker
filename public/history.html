@@ -61,7 +61,7 @@ window.onerror = fnOnError;
     var sensor_id = "Tracker_867726030099859";
 
     function initialize() {
-        var carLatLng = new google.maps.LatLng(24.827988,121.010149);
+        var carLatLng = new google.maps.LatLng(24.772643, 121.002443);
         //var carLatLng = new google.maps.LatLng(35.6799,139.7708); //TOKYO 
 
 //        if(window.navigator.geolocation) {
@@ -83,7 +83,7 @@ window.onerror = fnOnError;
 		
 		map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 
-		var image = 'http://maps.google.com/mapfiles/kml/pal2/icon47.png';
+		var image = 'http://maps.google.com/mapfiles/kml/pal2/icon10.png';
 		//var image ='gmap_ufo.png'
         //var image ='file:///D:/Projects/ezTour/itm/IMAG1525.jpg'
 		//---------------------------------------------------------
@@ -440,7 +440,7 @@ function drawSnappedPolyline() {
             var input_end = document.getElementById('input_end_date');
 
             var end_date = new Date();
-            var start_date = new Date(end_date.getTime() - 360000000);
+            var start_date = new Date(end_date.getTime() - 3600000*24);
 
             var history_data = null;
 
@@ -551,6 +551,8 @@ function drawSnappedPolyline() {
                     document.getElementById('list').innerHTML = '<ul>Query First!</ul>';
                 }
             }, false);
+
+            document.getElementById('button_query').click();
         </script>
     </div>
     <div style="clear:both;"></div>
