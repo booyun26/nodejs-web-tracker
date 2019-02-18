@@ -64,12 +64,12 @@ window.onerror = fnOnError;
         var carLatLng = new google.maps.LatLng(24.827988,121.010149);
         //var carLatLng = new google.maps.LatLng(35.6799,139.7708); //TOKYO 
 
-        if(window.navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-              carLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-            }, function() {
-           });     
-       }
+//        if(window.navigator.geolocation) {
+//            navigator.geolocation.getCurrentPosition(function(position) {
+//              carLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+//            }, function() {
+//           });     
+//       }
  //     else
  //     {
 //            alert("Not support geolocation!!");
@@ -80,6 +80,7 @@ window.onerror = fnOnError;
 		  zoom: 15,
 		  mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
+		
 		map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 
 		var image = 'http://maps.google.com/mapfiles/kml/pal2/icon47.png';
@@ -427,8 +428,9 @@ function drawSnappedPolyline() {
         <input type="text" id="input_start_date" name="start_date"/><br>
         End UTC Time:<br>
         <input type="text" id="input_end_date" name="end_date"/><br><br>
-        <input type="button" id="button_query" value="Query History"/>
-        <input type="button" id="button_save" value="Save CSV"/><br>
+        <input type="button" id="button_query" value="Query History"/><br><br>
+        <input type="button" id="button_save_csv" value="Save CSV"/>
+        <input type="button" id="button_save_gpx" value="Save GPX"/><br>
         <output id="list">
             <ul>Before saving, query first!</ul>
         </output>
@@ -440,7 +442,7 @@ function drawSnappedPolyline() {
             var end_date = new Date();
             var start_date = new Date(end_date.getTime() - 360000000);
 
-            var history_csv = null;
+            var history_data = null;
 
             //input_start.value = '' + date.getUTCFullYear() + '-' + date.getUTCMonth() + '-' + date.getUTCDay();
             input_start.value = start_date.toISOString();
@@ -464,6 +466,7 @@ function drawSnappedPolyline() {
                 })
                 .done(function(data) {
                     if(data.length > 0) {
+                        path_delete();
                         for(item in data) {
                             path_plot_poi(data[item].lat, data[item].lon, data[item].time);
                             var record = data[item].time + ',' + data[item].lat + ',' + data[item].lon;
@@ -478,9 +481,11 @@ function drawSnappedPolyline() {
                         //})
 
                         document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
-                        history_csv = history_log.join('');
+                        history_data = data;
+                        //history_csv = history_log.join('');
                         //download(sensor_id + ".csv", history_csv);
                     } else {
+                        history_data = null;
                         document.getElementById('list').innerHTML = '<ul>No record!</ul>';
                     }
                 })
@@ -490,8 +495,29 @@ function drawSnappedPolyline() {
                 });
             }
 
-            function download(filename, text) {
-                let blob = new Blob([text], {type: "application/octet-stream"});
+            function download(filename, ext) {
+                var text = [];
+
+                if(ext == 'csv') {
+                    text.push("sep=,\r\nUTC,LAT,LON\r\n");
+                    for(item in history_data) {
+                        text.push(history_data[item].time + ',' + history_data[item].lat + ',' + history_data[item].lon + '\r\n');
+                    }
+                } else if(ext == 'gpx') {
+                    text.push('<?xml version="1.0" encoding="UTF-8"?>\r\n');
+                    text.push('<gpx xmlns="http://www.topografix.com/GPX/1/1" creator="HOLUX" version="0.1">\r\n');
+                    text.push('<trk>\r\n');
+                    text.push('<name>Tracker_' + sensor_id + '</name>\r\n');
+                    text.push('<trkseg>\r\n');
+                    for(item in history_data) {
+                        text.push('<trkpt lat="' + history_data[item].lat + '" lon="' + history_data[item].lon + '">\r\n');
+                        text.push('<time>' + history_data[item].time + '</time>\r\n');
+                        text.push('</trkpt>\r\n');
+                    }
+                    text.push('</trkseg>\r\n</trk>\r\n</gpx>\r\n');
+                }
+
+                let blob = new Blob([text.join('')], {type: "application/octet-stream"});
                 let url = window.URL.createObjectURL(blob);
                 var element = document.createElement('a');
                 //element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -499,7 +525,7 @@ function drawSnappedPolyline() {
 
                 element.style.display = 'none';
                 element.href = url;
-                element.download = filename;
+                element.download = filename + '.' + ext;
 
                 document.body.appendChild(element);
 
@@ -511,9 +537,16 @@ function drawSnappedPolyline() {
             }
 
             document.getElementById('button_query').addEventListener("click", handleHistoryRequest, false);
-            document.getElementById('button_save').addEventListener("click", function(ev) {
-                if(history_csv != null) {
-                    download(sensor_id + ".csv", history_csv);
+            document.getElementById('button_save_csv').addEventListener("click", function(ev) {
+                if(history_data != null) {
+                    download(sensor_id, "csv");
+                } else {
+                    document.getElementById('list').innerHTML = '<ul>Query First!</ul>';
+                }
+            }, false);
+            document.getElementById('button_save_gpx').addEventListener("click", function(ev) {
+                if(history_data != null) {
+                    download(sensor_id, "gpx");
                 } else {
                     document.getElementById('list').innerHTML = '<ul>Query First!</ul>';
                 }
