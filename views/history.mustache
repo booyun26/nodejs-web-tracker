@@ -429,8 +429,8 @@ function drawSnappedPolyline() {
         End UTC Time:<br>
         <input type="text" id="input_end_date" name="end_date"/><br><br>
         <input type="button" id="button_query" value="Query History"/><br><br>
-        <input type="button" id="button_save_csv" value="Save CSV"/>
-        <input type="button" id="button_save_gpx" value="Save GPX"/><br>
+        <input type="button" id="button_save_csv" value="Save as CSV"/>
+        <input type="button" id="button_save_gpx" value="Save as GPX"/><br>
         <output id="list">
             <ul>Before saving, query first!</ul>
         </output>
@@ -448,13 +448,15 @@ function drawSnappedPolyline() {
             input_end.value = end_date.toISOString();
 
             function handleHistoryRequest(ev) {
+
+                document.getElementById('list').innerHTML = '<ul>Querying......</ul>';
+
                 var start_time = input_start.value.replace(/:/g, '%3A');
                 var end_time = input_end.value.replace(/:/g, '%3A');
                 const cht_url = 'https://iot.cht.com.tw/iot/v1/device/11798538376/sensor/' + sensor_id + '/rawdata?start=' + start_time + '&end=' + end_time;
                 
                 // files is a FileList of File objects. List some properties.
                 var output = [];
-                var history_log = ["sep=,\r\n", "UTC,LAT,LON\r\n"];
 
                 $.ajax({
                     dataType: "json",
@@ -470,19 +472,14 @@ function drawSnappedPolyline() {
                             path_plot_poi(data[item].lat, data[item].lon, data[item].time);
                             var record = data[item].time + ',' + data[item].lat + ',' + data[item].lon;
                             output.push('<li>' + record + '</li>');
-                            history_log.push(record + '\r\n');
                         }
 
                         if(data.length > 0)
                             set_center(data[data.length - 1].lat, data[data.length - 1].lon);
-                        //$.each(data, function(key, value) {
-                        //    output.push('<li id="' + key + '">' + value + '</li>');
-                        //})
 
-                        document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+                        //document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+                        document.getElementById('list').innerHTML = '<ul>Total ' + data.length + ' records</ul>';
                         history_data = data;
-                        //history_csv = history_log.join('');
-                        //download(sensor_id + ".csv", history_csv);
                     } else {
                         history_data = null;
                         document.getElementById('list').innerHTML = '<ul>No record!</ul>';
