@@ -427,8 +427,11 @@ function drawSnappedPolyline() {
         <input type="text" id="input_start_date" name="start_date"/><br>
         End UTC Time:<br>
         <input type="text" id="input_end_date" name="end_date"/><br><br>
-        <input type="button" id="button_query" value="Query History"/><br>
-        <output id="list"></output>
+        <input type="button" id="button_query" value="Query History"/>
+        <input type="button" id="button_save" value="Save CSV"/><br>
+        <output id="list">
+            <ul>Before saving, query first!</ul>
+        </output>
 
         <script>
             var input_start = document.getElementById('input_start_date');
@@ -436,6 +439,8 @@ function drawSnappedPolyline() {
 
             var end_date = new Date();
             var start_date = new Date(end_date.getTime() - 360000000);
+
+            var history_csv = null;
 
             //input_start.value = '' + date.getUTCFullYear() + '-' + date.getUTCMonth() + '-' + date.getUTCDay();
             input_start.value = start_date.toISOString();
@@ -448,6 +453,7 @@ function drawSnappedPolyline() {
                 
                 // files is a FileList of File objects. List some properties.
                 var output = [];
+                var history_log = ["sep=,\r\n", "UTC,LAT,LON\r\n"];
 
                 $.ajax({
                     dataType: "json",
@@ -457,26 +463,61 @@ function drawSnappedPolyline() {
                     }
                 })
                 .done(function(data) {
-                    for(item in data) {
-                        path_plot_poi(data[item].lat, data[item].lon, data[item].time);
-                        output.push('<li>' + data[item].time + ',' + data[item].lat + ',' + data[item].lon + '</li>');
+                    if(data.length > 0) {
+                        for(item in data) {
+                            path_plot_poi(data[item].lat, data[item].lon, data[item].time);
+                            var record = data[item].time + ',' + data[item].lat + ',' + data[item].lon;
+                            output.push('<li>' + record + '</li>');
+                            history_log.push(record + '\r\n');
+                        }
+
+                        if(data.length > 0)
+                            set_center(data[data.length - 1].lat, data[data.length - 1].lon);
+                        //$.each(data, function(key, value) {
+                        //    output.push('<li id="' + key + '">' + value + '</li>');
+                        //})
+
+                        document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+                        history_csv = history_log.join('');
+                        //download(sensor_id + ".csv", history_csv);
+                    } else {
+                        document.getElementById('list').innerHTML = '<ul>No record!</ul>';
                     }
-
-                    if(data.length > 0)
-                        set_center(data[data.length - 1].lat, data[data.length - 1].lon);
-                    //$.each(data, function(key, value) {
-                    //    output.push('<li id="' + key + '">' + value + '</li>');
-                    //})
-
-                    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
                 })
                 .fail(function() {
                     output.push('<li>Failed to query history!!</li>');
-                    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+                    document.getElementById('list').innerHTML = '<ul>No record!</ul>';
                 });
             }
 
+            function download(filename, text) {
+                let blob = new Blob([text], {type: "application/octet-stream"});
+                let url = window.URL.createObjectURL(blob);
+                var element = document.createElement('a');
+                //element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                //element.setAttribute('download', filename);
+
+                element.style.display = 'none';
+                element.href = url;
+                element.download = filename;
+
+                document.body.appendChild(element);
+
+                element.click();
+
+                document.body.removeChild(element);
+
+                URL.revokeObjectURL(url);
+            }
+
             document.getElementById('button_query').addEventListener("click", handleHistoryRequest, false);
+            document.getElementById('button_save').addEventListener("click", function(ev) {
+                if(history_csv != null) {
+                    download(sensor_id + ".csv", history_csv);
+                } else {
+                    document.getElementById('list').innerHTML = '<ul>Query First!</ul>';
+                }
+            }, false);
         </script>
     </div>
     <div style="clear:both;"></div>
