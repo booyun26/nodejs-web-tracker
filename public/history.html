@@ -58,7 +58,7 @@ window.onerror = fnOnError;
     
     var mySocket;
     var lastPosTime = null;
-    var sensor_id = "Tracker_867726030099859";
+    var sensor_id = "Tracker_867726030309571";
 
     function initialize() {
         var carLatLng = new google.maps.LatLng(24.772643, 121.002443);
@@ -452,13 +452,27 @@ function drawSnappedPolyline() {
 
                 document.getElementById('list').innerHTML = '<ul>Querying......</ul>';
 
-                var start_time = input_start.value.replace(/:/g, '%3A');
-                var end_time = input_end.value.replace(/:/g, '%3A');
+                history_data = null;
+                query_history(input_start.value, input_end.value);
+            }
+
+            function query_history(t_start, t_end) {
+                var start_ms = Date.parse(t_start);
+                var end_ms = Date.parse(t_end);
+                var sub_end_ms = start_ms + 3600000;
+
+                if(sub_end_ms > end_ms)
+                    sub_end_ms = end_ms;
+
+                var start_time = new Date(start_ms).toISOString().replace(/:/g, '%3A');
+                var end_time = new Date(sub_end_ms).toISOString().replace(/:/g, '%3A');
+
+                //start_time.replace(/:/g, '%3A');
+                //end_time.replace(/:/g, '%3A');
+
+
                 const cht_url = 'https://iot.cht.com.tw/iot/v1/device/11798538376/sensor/' + sensor_id + '/rawdata?start=' + start_time + '&end=' + end_time;
                 
-                // files is a FileList of File objects. List some properties.
-                var output = [];
-
                 $.ajax({
                     dataType: "json",
                     url: cht_url,
@@ -467,26 +481,31 @@ function drawSnappedPolyline() {
                     }
                 })
                 .done(function(data) {
-                    if(data.length > 0) {
+                    if(history_data == null)
+                        history_data = data;
+                    else {
+                        for(i in data) {
+                            history_data.push(data[i]);
+                        }
+                    }
+
+                    if(end_ms - start_ms <= 3600000*2) {
                         path_delete();
-                        for(item in data) {
-                            path_plot_poi(data[item].lat, data[item].lon, data[item].time);
-                            var record = data[item].time + ',' + data[item].lat + ',' + data[item].lon;
-                            output.push('<li>' + record + '</li>');
+
+                        for(item in history_data) {
+                            path_plot_poi(history_data[item].lat, history_data[item].lon, history_data[item].time);
                         }
 
-                        if(data.length > 0)
-                            set_center(data[data.length - 1].lat, data[data.length - 1].lon);
-
-                        //document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
-                        document.getElementById('list').innerHTML = '<ul>Total ' + data.length + ' records</ul>';
-                        history_data = data;
+                        if(history_data.length > 0)
+                            set_center(history_data[history_data.length - 1].lat, history_data[history_data.length - 1].lon);
+                        
+                        document.getElementById('list').innerHTML = '<ul>Total ' + history_data.length + ' records</ul>';
                     } else {
-                        history_data = null;
-                        document.getElementById('list').innerHTML = '<ul>No record!</ul>';
+                        query_history(new Date(start_ms + 3600000).toISOString(), new Date(end_ms).toISOString());
                     }
                 })
                 .fail(function() {
+                    history_data = null;
                     output.push('<li>Failed to query history!!</li>');
                     document.getElementById('list').innerHTML = '<ul>No record!</ul>';
                 });
@@ -496,9 +515,9 @@ function drawSnappedPolyline() {
                 var text = [];
 
                 if(ext == 'csv') {
-                    text.push("sep=,\r\nUTC,LAT,LON\r\n");
+                    text.push("sep=,\r\nUTC,LAT,LON,MSG\r\n");
                     for(item in history_data) {
-                        text.push(history_data[item].time + ',' + history_data[item].lat + ',' + history_data[item].lon + '\r\n');
+                        text.push(history_data[item].time + ',' + history_data[item].lat + ',' + history_data[item].lon + ',' + history_data[item].value[0] + '\r\n');
                     }
                 } else if(ext == 'gpx') {
                     text.push('<?xml version="1.0" encoding="UTF-8"?>\r\n');
