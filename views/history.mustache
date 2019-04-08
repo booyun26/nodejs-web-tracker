@@ -59,6 +59,8 @@ window.onerror = fnOnError;
     var mySocket;
     var lastPosTime = null;
     var sensor_id = "{{SENSOR_ID}}";
+    var device_id = "{{DEVICE_ID}}";
+    var device_ck = "{{DEVICE_CK}}";
 
     function initialize() {
         var carLatLng = new google.maps.LatLng(24.772643, 121.002443);
@@ -144,7 +146,8 @@ window.onerror = fnOnError;
         
         mySocket.onopen = function(ev) {
             //mySocket.send('{"ck":"DKKY3FPE9ZKM9ZSE7R","resources":["/v1/device/11798538376/sensor/Tracker_867726030099859/rawdata"]}');
-            mySocket.send('{"ck":"DKKY3FPE9ZKM9ZSE7R","resources":["/v1/device/11798538376/sensor/' + sensor_id + '/rawdata"]}');
+            //mySocket.send('{"ck":"DKKY3FPE9ZKM9ZSE7R","resources":["/v1/device/11798538376/sensor/' + sensor_id + '/rawdata"]}');
+            mySocket.send('{"ck":"' + device_ck + '","resources":["/v1/device/' + device_id + '/sensor/' + sensor_id + '/rawdata"]}');
         }
         mySocket.onmessage = function(ev) {
             let data = JSON.parse(ev.data);
@@ -470,13 +473,13 @@ function drawSnappedPolyline() {
                 //end_time.replace(/:/g, '%3A');
 
 
-                const cht_url = 'https://iot.cht.com.tw/iot/v1/device/11798538376/sensor/' + sensor_id + '/rawdata?start=' + start_time + '&end=' + end_time;
+                const cht_url = 'https://iot.cht.com.tw/iot/v1/device/' + device_id + '/sensor/' + sensor_id + '/rawdata?start=' + start_time + '&end=' + end_time;
                 
                 $.ajax({
                     dataType: "json",
                     url: cht_url,
                     headers : {
-                        'CK' : 'DKKY3FPE9ZKM9ZSE7R'
+                        'CK' : device_ck
                     }
                 })
                 .done(function(data) {

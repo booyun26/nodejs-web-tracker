@@ -58,6 +58,8 @@ window.onerror = fnOnError;
 	var mySocket;
 	var lastPosTime = null;
     var sensor_id = "{{SENSOR_ID}}";
+    var device_id = "{{DEVICE_ID}}";
+    var device_ck = "{{DEVICE_CK}}";
 
 	function initialize() {
 		//var carLatLng = new google.maps.LatLng({{center_pos}});
@@ -145,7 +147,7 @@ window.onerror = fnOnError;
         
         mySocket.onopen = function(ev) {
             //mySocket.send('{"ck":"{{DEV_CK}}","resources":["/v1/device/{{DEV_ID}}/sensor/{{SENSOR_ID}}/rawdata"]}');
-            mySocket.send('{"ck":"DKKY3FPE9ZKM9ZSE7R","resources":["/v1/device/11798538376/sensor/' + sensor_id + '/rawdata"]}');
+            mySocket.send('{"ck":"' + device_ck + '","resources":["/v1/device/' + device_id + '/sensor/' + sensor_id + '/rawdata"]}');
         }
         mySocket.onmessage = function(ev) {
             let data = JSON.parse(ev.data);

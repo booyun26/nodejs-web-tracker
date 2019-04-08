@@ -15,7 +15,7 @@ app.get('/map', function (req, res) {
   //console.log(fullpath);
   //res.sendFile(fullpath);
   console.log(req.query);
-  res.render('map', {title : 'CHT Tracker', SENSOR_ID: 'Tracker_' + req.query.id});
+  res.render('map', {title : 'CHT Tracker', SENSOR_ID: 'Tracker_' + req.query.id, DEVICE_ID: '11798538376', DEVICE_CK: 'DKKY3FPE9ZKM9ZSE7R'});
 });
 
 app.get('/map/history', function (req, res) {
@@ -23,7 +23,23 @@ app.get('/map/history', function (req, res) {
   //console.log(fullpath);
   //res.sendFile(fullpath);
   console.log(req.query);
-  res.render('history', {title : 'CHT Tracker History', SENSOR_ID: 'Tracker_' + req.query.id});
+  res.render('history', {title : 'CHT Tracker History', SENSOR_ID: 'Tracker_' + req.query.id, DEVICE_ID: '11798538376', DEVICE_CK: 'DKKY3FPE9ZKM9ZSE7R'});
+});
+
+app.get('/demo', function (req, res) {
+  //var fullpath = path.join(__dirname + '/public/gmap.html');
+  //console.log(fullpath);
+  //res.sendFile(fullpath);
+  console.log(req.query);
+  res.render('map', {title : 'CHT Tracker', SENSOR_ID: 'Tracker_' + req.query.id, DEVICE_ID: '12478879679', DEVICE_CK: 'DKCWF05E1U11PWP27R'});
+});
+
+app.get('/demo/history', function (req, res) {
+  //var fullpath = path.join(__dirname + '/public/gmap.html');
+  //console.log(fullpath);
+  //res.sendFile(fullpath);
+  console.log(req.query);
+  res.render('history', {title : 'CHT Tracker History', SENSOR_ID: 'Tracker_' + req.query.id, DEVICE_ID: '12478879679', DEVICE_CK: 'DKCWF05E1U11PWP27R'});
 });
 
 app.get('/test', function (req, res) {
